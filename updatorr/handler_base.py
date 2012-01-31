@@ -4,21 +4,12 @@ import tempfile
 from urllib import urlencode
 from httplib2 import Http
 
-# This import is needed for `register_tracker_handler` helper function.
-from updatorr.utils import TRACKER_HANDLERS
-
 
 # This regex is used to get all hyperlinks from html.
 RE_LINK = re.compile(r'href\s*=\s*"\s*([^"]+)\s*"[^>]*>', re.S | re.I | re.M)
 
 # Cookie registry holds cookies from different tracker hosts.
 COOKIES_REGISTRY = {}
-
-
-def register_tracker_handler(domain_name, handler_callable):
-    """Registers a tracker handler class with some domain name."""
-    global TRACKER_HANDLERS
-    TRACKER_HANDLERS[domain_name] = handler_callable
 
 
 class BaseTrackerHandler(object):

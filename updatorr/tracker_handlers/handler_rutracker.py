@@ -1,4 +1,5 @@
-from updatorr.handler_base import BaseTrackerHandler, register_tracker_handler
+from updatorr.handler_base import BaseTrackerHandler
+from updatorr.utils import register_tracker_handler
 
 
 class RutrackerHandler(BaseTrackerHandler):

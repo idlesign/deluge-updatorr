@@ -5,6 +5,12 @@ from deluge._libtorrent import lt
 TRACKER_HANDLERS = {}
 
 
+def register_tracker_handler(domain_name, handler_callable):
+    """Registers a tracker handler class with some domain name."""
+    global TRACKER_HANDLERS
+    TRACKER_HANDLERS[domain_name] = handler_callable
+
+
 def get_registered_handlers(domain=None):
     """Returns registered handlers dictionary."""
     if domain is None:
@@ -13,7 +19,7 @@ def get_registered_handlers(domain=None):
 
 
 def get_tracker_handler(torrent_data, logger):
-    """Returns an appropiate torrent tracker handler object
+    """Returns an appropriate torrent tracker handler object
     from handlers dictionary basing on resource_url."""
     for host_name in TRACKER_HANDLERS.keys():
         if host_name in torrent_data['comment']:
