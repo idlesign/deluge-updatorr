@@ -1,3 +1,10 @@
+v0.1.1
+------
+* Fixed possible bogus 'Unable to find retracker handler'.
+* Fixed not emitted UpdatorrUpdatesCheckFinishedEvent.
+* register_tracker_handler() moved into utils.py.
+
+
 v0.1
 ----
 + Initial release.

@@ -1,7 +1,7 @@
 from deluge.plugins.init import PluginInitBase
 
 
-VERSION = (0, 1)
+VERSION = (0, 1, 1)
 
 
 class CorePlugin(PluginInitBase):
