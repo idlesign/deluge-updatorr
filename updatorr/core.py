@@ -22,7 +22,8 @@ log = logging.getLogger(__name__)
 
 # Import tracker handlers on fly.
 # It is an .egg-friendly alternative to os.listdir() walking.
-for mloader, pname, ispkg in pkgutil.iter_modules(['updatorr/tracker_handlers']):
+for mloader, pname, ispkg in pkgutil.iter_modules(updatorr.tracker_handlers.__path__):
+    log.info('Updatorr Importing tracker handler file %s' % pname)
     __import__('updatorr.tracker_handlers.%s' % pname)
 
 
