@@ -243,7 +243,7 @@ class Core(CorePluginBase):
             self.last_walk = time()
 
         log.info('Updatorr walk is finished')
-        component.get('EventManager').emit(UpdatorrUpdatesCheckFinishedEvent)
+        component.get('EventManager').emit(UpdatorrUpdatesCheckFinishedEvent())
         self.walking = False
 
     def dump_error(self, torrent_id, text):
