@@ -9,8 +9,8 @@ What's that
 *deluge-updatorr is a Deluge plugin for automatic torrents updates.*
 
 If you're periodically checking your favourite torrent tracker site,
-on which torrents are organized as articles (forum-like trackers),
-to verify whether a specific torrents have been updated (e.g. torrent
+on which torrents are organized as articles (i.e forum-like tracker),
+to verify whether specific torrents have been updated (e.g. torrent
 bundling some TV-series is updated with a new episode), then Updatorr
 is might be of use.
 
@@ -63,7 +63,8 @@ To create a tracker handler class one needs to:
 
 Tracker handler sample `updatorr/tracker_handlers/handler_mytrack.py`::
 
-    from updatorr.handler_base import BaseTrackerHandler, register_tracker_handler
+    from updatorr.handler_base import BaseTrackerHandler
+    from updatorr.utils import register_tracker_handler
 
     class MyTrackHandler(BaseTrackerHandler):
 
@@ -77,7 +78,7 @@ Tracker handler sample `updatorr/tracker_handlers/handler_mytrack.py`::
             return torrent_filepath
 
     register_tracker_handler('mytrackaurl.com', MyTrackHandler)
-    register_tracker_handler('yotr.su', MyTrackHandler
+    register_tracker_handler('yotr.su', MyTrackHandler)
 
 See `updatorr/tracker_handlers/handler_rutracker.py` and `updatorr/handler_base.py` for reference.
 Read docstrings of Updatorr.
