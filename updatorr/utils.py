@@ -1,4 +1,9 @@
+import time
+
+from collections import defaultdict
+from cookielib import CookieJar
 from copy import deepcopy
+
 from deluge._libtorrent import lt
 
 # Torrent tracker handler classes registry.
@@ -102,3 +107,63 @@ def get_files_priorities(torrent_data):
         files[file['path']] = torrent_data['file_priorities'][walk_counter]
         walk_counter += 1
     return  files
+
+
+class DummyRequest(object):
+    """Fake request object to satisfy CookieJar._cookies_from_attrs_set.
+    See ``Cookies`` class.
+
+    """
+
+    def get_full_url(self):
+        return ''
+
+    def get_host(self):
+        return ''
+
+    def get_header(self, name, default):
+        return default
+
+
+class Cookies(CookieJar):
+    """Wrapper around CookieJar with helper methods."""
+
+    def __init__(self, policy=None, init_from_dict=None):
+        CookieJar.__init__(self, policy=policy)
+        self._now = int(time.time())
+        if init_from_dict is not None:
+            self.from_dict(init_from_dict)
+
+    def get(self, name, default=None):
+        """Returns value for cookie by name.
+        If cookie is not found in a jar value of ``default``
+        is returned.
+
+        """
+        value = default
+        for cookie in self:
+            if cookie.name==name:
+                return cookie.value
+        return value
+
+    def add(self, name, value, params=None):
+        """Adds cookie into a jar."""
+        cookie_tuple = [(name, value)]
+        if params is not None:
+            cookie_tuple.extend(params)
+        cookies = self._cookies_from_attrs_set([cookie_tuple], DummyRequest())
+        for  cookie in cookies:
+            self.set_cookie(cookie)
+
+    def to_dict(self):
+        """Converts CookieJar into a dictionary."""
+        output = defaultdict(dict)
+        for cookie in self:
+            for attr in cookie.__dict__:
+                output[cookie.name][attr] = cookie.__dict__[attr]
+        return output
+
+    def from_dict(self, source_dict):
+        """Populates CookieJar from a dictionary."""
+        for name, props in source_dict.items():
+            self.add(name, props['value'], props.items())

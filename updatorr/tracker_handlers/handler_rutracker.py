@@ -46,13 +46,12 @@ class RutrackerHandler(BaseTrackerHandler):
             'login_password': password,
             'login': 'pushed',
             }
-        response, page_html = self.get_resource(login_url, form_data)
-        if 'set-cookie' not in response:
-            self.dump_error('Unable to login.')
-        else:
-            self.set_cookie(response['set-cookie'].split(';')[0])
-            self.logged_in = True
+        self.get_resource(login_url, form_data)
+        cookies = self.get_cookies()
 
+        # Login success check.
+        if cookies.get('bb_data') is not None:
+            self.logged_in = True
         return self.logged_in
 
     def get_download_link(self):
@@ -80,7 +79,8 @@ class RutrackerHandler(BaseTrackerHandler):
         """
         self.debug('Downloading torrent file from %s ...' % url)
         # That was a check that user himself visited torrent's page ;)
-        self.set_cookie({'bb_dl': self.get_id_from_link()})
+        cookies = self.get_cookies()
+        self.set_cookie('bb_dl', self.get_id_from_link())
         contents = self.get_resource(url, {})[1]
         return self.store_tmp_torrent(contents)
 
