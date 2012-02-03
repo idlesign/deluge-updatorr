@@ -1,3 +1,9 @@
+v0.1.2
+------
+* Cookies handling is simplified for tracker handlers.
+  May fix 'Cannot find torrent file download link' errors for RuTracker handler.
+
+
 v0.1.1
 ------
 * Fixed possible bogus 'Unable to find retracker handler'.
