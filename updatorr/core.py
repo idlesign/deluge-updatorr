@@ -232,6 +232,10 @@ class Core(CorePluginBase):
                 log.info('Updatorr \tTorrent is updated')
                 # Fire up update finished event.
                 component.get('EventManager').emit(UpdatorrUpdateDoneEvent(new_torrent_info['hash']))
+                # Add new torrent hash to continue autoupdates.
+                self.set_items_to_update(new_torrent_info['hash'], True)
+                # Remove old torrent from autoupdates list.
+                self.set_items_to_update(torrent_id, False)
             else:
                 self.dump_error(torrent_id, 'Unable to replace current torrent with a new one')
 
