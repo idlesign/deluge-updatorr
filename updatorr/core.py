@@ -3,7 +3,7 @@ import logging
 import threading
 import base64
 import pkgutil
-from time import time
+import time
 
 import deluge.configmanager
 import deluge.component as component
@@ -150,7 +150,7 @@ class Core(CorePluginBase):
         """Runs update process in a separate thread
         if it is a hight time for it and it's not already started."""
         if not force:
-            now = time()
+            now = time.time()
             next_walk = int(self.last_walk) + (int(self.walk_period) * 3600)
             log.debug('Updatorr run walker: walking=%s; next_walk=%s; now=%s' % (self.walking, next_walk, now))
             if self.walking:
@@ -240,7 +240,7 @@ class Core(CorePluginBase):
 
         if allow_last_walk_update:
             # Remember lastrun time.
-            self.last_walk = time()
+            self.last_walk = time.time()
 
         log.info('Updatorr walk is finished')
         component.get('EventManager').emit(UpdatorrUpdatesCheckFinishedEvent())
