@@ -38,6 +38,27 @@ If you are to build .egg file from source code yourself use
 `python setup.py bdist_egg` command in source code root directory.
 
 
+Troubleshooting
+---------------
+
+Q: I installed Updatorr and checked it on plugins page, but Updatorr
+page is not shown in preferences dialog.
+
+A: 1. Verify that you downloaded and installed Updator for the same Python
+      version your deluge is working on. Updator is available in distributions
+      for Python 2.6 and 2.7.
+
+   2. Verify that `python-setuptools` package is installed.
+
+
+Q: It seems that Updatorr doesn't work with my OS/Python/Deluge/GTK+ versions.
+
+A: Updatorr is developed and used with Ubuntu 11.10, Python 2.7, Deluge 1.3.3, GTK+ 2.24.
+It may or may not work with other software. Anyway you're always welcome to improve Updatorr
+to support those (see `Get involved` section down below).
+
+
+
 Trackers Handlers
 -----------------
 
