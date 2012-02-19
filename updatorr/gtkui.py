@@ -132,15 +132,13 @@ class GtkUI(GtkPluginBase):
             self.trackers_data_model = gtk.ListStore(str, bool, str, str)
 
             text_cell = gtk.CellRendererText()
-            hidden_cell = gtk.CellRendererText()
-            hidden_cell.set_visible(False)
             bool_cell = gtk.CellRendererToggle()
 
             tvc_domain = gtk.TreeViewColumn('Tracker domain', text_cell, text=0)
             tvc_login_req = gtk.TreeViewColumn('Login required', bool_cell)
             tvc_login_req.add_attribute(bool_cell, 'active', 1)
             tvc_login = gtk.TreeViewColumn('Login', text_cell, text=2)
-            tvc_password = gtk.TreeViewColumn('Password', hidden_cell, text=3)
+            tvc_password = gtk.TreeViewColumn('Password', text_cell, text=3)
             tvc_password.set_visible(False)
 
             self.tv_trackers.append_column(tvc_domain)
