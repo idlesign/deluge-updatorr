@@ -1,3 +1,10 @@
+v0.1.4
+------
++ Added `Trublesooting` section to README.
+* Fixed `KeyError: 'cookies'` in handler_base.py (see #1).
+* Fixed `gtk.CellRendererText` issue with TreeView (see #1).
+
+
 v0.1.3
 ------
 + Updated torrents are automatically scheduled for further updates.
