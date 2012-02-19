@@ -51,7 +51,8 @@ class BaseTrackerHandler(object):
             setting = {}
         self._tracker_settings = setting
         # Initialize cookies data from previous handler session.
-        self.reset_cookies(setting['cookies'])
+        if 'cookies' in setting:
+            self.reset_cookies(setting['cookies'])
 
     def get_settings(self, field=None):
         """Returns tracker specific settings dictionary.
@@ -132,9 +133,9 @@ class BaseTrackerHandler(object):
         """
         if self.tracker_host not in COOKIES_REGISTRY:
             COOKIES_REGISTRY[self.tracker_host] = Cookies()
-        if not as_dict:
-            return COOKIES_REGISTRY[self.tracker_host]
-        return COOKIES_REGISTRY[self.tracker_host].to_dict()
+        if as_dict:
+            return COOKIES_REGISTRY[self.tracker_host].to_dict()
+        return COOKIES_REGISTRY[self.tracker_host]
 
     def find_links(self, page_html):
         """Returns a list witj hyperlinks found in supplied html."""
