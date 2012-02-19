@@ -1,5 +1,6 @@
 include README
 include LICENSE
+include AUTHORS
 include CHANGELOG
 recursive-include updatorr/data *
 recursive-include updatorr/tracker_handlers *
