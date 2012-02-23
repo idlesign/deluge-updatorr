@@ -157,8 +157,6 @@ class Core(CorePluginBase):
                 return False
             if next_walk > now:
                 return False
-        if force is True:
-            force = []
         threading.Thread(target=self.walk, kwargs={'force': force}).start()
         return True
 
@@ -185,7 +183,7 @@ class Core(CorePluginBase):
 
         allow_last_walk_update = False
 
-        if force:
+        if isinstance(force, list):
             torrents_list = force
         else:
             torrents_list = self.torrents_to_update
