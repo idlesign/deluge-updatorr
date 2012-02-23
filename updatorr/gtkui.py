@@ -115,7 +115,7 @@ class GtkUI(GtkPluginBase):
             self.status_bar_item.set_text(_('Updates are not checked yet'))
         else:
             last_updated = datetime.fromtimestamp(status_data[0]).strftime(self.DATE_FORMAT)
-            next_update = datetime.fromtimestamp(status_data[0] + (status_data[1] * 3600)).strftime(self.DATE_FORMAT)
+            next_update = datetime.fromtimestamp(int(status_data[0]) + int(status_data[1] * 3600)).strftime(self.DATE_FORMAT)
             # Note that format used is locale-specific and UTF-8 encoding is required for UI output.
             if CURRENT_LOCALE is not None:
                 last_updated = last_updated.decode(CURRENT_LOCALE).encode('utf8')
