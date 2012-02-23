@@ -109,9 +109,12 @@ class GtkUI(GtkPluginBase):
 
     def get_status(self, status_data):
         """Returns autoupdate status and puts it our status bar item."""
-        last_updated = datetime.fromtimestamp(status_data[0]).strftime(self.DATE_FORMAT)
-        next_update = datetime.fromtimestamp(status_data[0] + (status_data[1] * 3600)).strftime(self.DATE_FORMAT)
-        self.status_bar_item.set_text(_('last: %s, next: %s') % (last_updated, next_update))
+        if status_data[0] == 0:
+            self.status_bar_item.set_text(_('Updates are not checked yet'))
+        else:
+            last_updated = datetime.fromtimestamp(status_data[0]).strftime(self.DATE_FORMAT)
+            next_update = datetime.fromtimestamp(status_data[0] + (status_data[1] * 3600)).strftime(self.DATE_FORMAT)
+            self.status_bar_item.set_text(_('last: %s, next: %s') % (last_updated, next_update))
 
     def disable(self):
         """Triggers when plugin is disabled."""
