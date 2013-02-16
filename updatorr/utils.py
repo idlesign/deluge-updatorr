@@ -1,4 +1,5 @@
 import time
+import os
 
 from collections import defaultdict
 from cookielib import CookieJar
@@ -94,6 +95,18 @@ def get_new_prefs(full_prefs, new_torrent_info):
         if a_file in old_priorities:
             priority = old_priorities[a_file]
         new_prefs['file_priorities'].append(priority)
+
+    # Check for root folder rename
+    old_splited = os.path.split(full_prefs['files'][0]['path'])
+    if len (old_splited) > 1:
+        old_folder = old_splited[0]
+        new_folder = os.path.split(new_torrent_info['files'][0])[0]
+        if new_folder != old_folder:
+            i = 0
+            for a_file in new_torrent_info['files']:
+                new_prefs['mapped_files'][i] = a_file.replace(new_folder, old_folder)
+                i += 1
+
 
     return new_prefs
 
