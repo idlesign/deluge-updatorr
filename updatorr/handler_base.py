@@ -89,7 +89,7 @@ class BaseTrackerHandler(object):
 
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.get_cookies()))
         request = urllib2.Request(url, form_data,
-                {'User-agent': 'Mozilla/5.0 (Ubuntu; X11; Linux i686; rv:8.0) Gecko/20100'})
+                                  {'User-agent': 'Mozilla/5.0 (Ubuntu; X11; Linux i686; rv:8.0) Gecko/20100'})
 
         try:
             response = opener.open(request)
@@ -153,3 +153,122 @@ class BaseTrackerHandler(object):
     def debug(self, text):
         """A shortcut to store debug info."""
         self._log.debug(text)
+
+
+class GenericTrackerHandler(BaseTrackerHandler):
+    """Generic torrent tracker handler class implementing
+    most common tracker handling methods."""
+
+    def get_id_from_link(self):
+        """Returns forum thread identifier from full thread URL."""
+        return self.resource_url.split('=')[1]
+
+    def get_torrent_file(self):
+        """This is the main method which returns
+        a filepath to the downloaded file."""
+        torrent_file = None
+        download_link = self.get_download_link()
+        if download_link is None:
+            self.dump_error('Cannot find torrent file download link at %s' % self.resource_url)
+        else:
+            self.debug('Torrent download link found: %s' % download_link)
+            torrent_file = self.download_torrent(download_link)
+        return torrent_file
+
+    def get_download_link(self):
+        """Tries to find .torrent file download link at forum thread page
+        and return that one."""
+        raise NotImplementedError()
+
+    def download_torrent(self, url):
+        """Gets .torrent file contents from given URL and
+        stores that in a temporary file within a filesystem.
+        Returns a path to that file.
+
+        """
+        raise NotImplementedError()
+
+
+class GenericPublicTrackerHandler(GenericTrackerHandler):
+    """Generic torrent tracker handler class implementing
+    most common handling methods for public trackers."""
+
+    login_required = False
+
+    def get_id_from_link(self):
+        """Returns forum thread identifier from full thread URL."""
+        return self.resource_url.split('/')[-1]
+
+    def download_torrent(self, url):
+        """Gets .torrent file contents from given URL and
+        stores that in a temporary file within a filesystem.
+        Returns a path to that file.
+
+        """
+        self.debug('Downloading torrent file from %s ...' % url)
+        # That was a check that user himself visited torrent's page ;)
+        response, contents = self.get_resource(url)
+        return self.store_tmp_torrent(contents)
+
+
+class GenericPrivateTrackerHandler(GenericPublicTrackerHandler):
+    """Generic torrent tracker handler class implementing
+    most common handling methods for private trackers (that require
+    registration).
+
+    """
+
+    login_required = True
+    login_url = None
+
+    # Cookie to verify that a log in was successful.
+    cookie_logged_in = None
+    logged_in = False
+    # Stores a number of login attempts to prevent recursion.
+    login_counter = 0
+
+    def get_login_form_data(self, login, password):
+        """Should return a dictionary with data to be pushed
+        to authorization form.
+
+        """
+        return {'username': login, 'password': password}
+
+    def login(self, login, password):
+        """Implements tracker login procedure."""
+        self.logged_in = False
+
+        if login is None or password is None:
+            return False
+
+        self.login_counter += 1
+
+        # No recursion wanted.
+        if self.login_counter > 1:
+            return False
+
+        self.debug('Trying to login at %s ...' % self.login_url)
+        self.get_resource(self.login_url, self.get_login_form_data(login, password))
+        cookies = self.get_cookies()
+
+        # Login success check.
+        if cookies.get(self.cookie_logged_in) is not None:
+            self.logged_in = True
+        return self.logged_in
+
+    def before_download(self):
+        """Used to perform some required actions right before .torrent download.
+        E.g.: to set a sentinel cookie that allows the download."""
+        return True
+
+    def download_torrent(self, url):
+        """Gets .torrent file contents from given URL and
+        stores that in a temporary file within a filesystem.
+        Returns a path to that file.
+
+        """
+        self.debug('Downloading torrent file from %s ...' % url)
+        self.get_cookies()
+        self.before_download()
+        contents = self.get_resource(url, {})[1]
+        return self.store_tmp_torrent(contents)
