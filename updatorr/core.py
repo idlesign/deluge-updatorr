@@ -4,6 +4,7 @@ import threading
 import base64
 import pkgutil
 import time
+import re
 
 import deluge.configmanager
 import deluge.component as component
@@ -195,6 +196,8 @@ class Core(CorePluginBase):
                 log.debug('Updatorr \tSKIPPED No torrent with id %s listed [yet]' % torrent_id)
                 continue
             log.info('Updatorr Processing %s ...' % torrent_data['name'])
+            # Remove not url data from comment
+            torrent_data['comment'] = re.search("(?P<url>https?://[^\s]+)", torrent_data['comment']).group("url")
             if not is_url(torrent_data['comment']):
                 log.info('Updatorr \tSKIPPED No URL found in torrent comment')
                 continue
