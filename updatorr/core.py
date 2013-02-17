@@ -36,6 +36,9 @@ DEFAULT_PREFS = {
     'torrents_to_update': []  # That might have been set(), except config serialization.
 }
 
+# This regex is used to get hyperlink from torrent comment.
+RE_LINK = re.compile(r'(?P<url>https?://[^\s]+)')
+
 
 class UpdatorrUpdateDoneEvent(DelugeEvent):
     """This event fires up when a torrent is updated."""
@@ -197,7 +200,7 @@ class Core(CorePluginBase):
                 continue
             log.info('Updatorr Processing %s ...' % torrent_data['name'])
             # Remove not url data from comment
-            torrent_data['comment'] = re.search("(?P<url>https?://[^\s]+)", torrent_data['comment']).group("url")
+            torrent_data['comment'] = RE_LINK.search(torrent_data['comment']).group('url')
             if not is_url(torrent_data['comment']):
                 log.info('Updatorr \tSKIPPED No URL found in torrent comment')
                 continue
@@ -207,7 +210,7 @@ class Core(CorePluginBase):
                 allow_last_walk_update = True
             tracker_handler = get_tracker_handler(torrent_data, log)
             if tracker_handler is None:
-                self.dump_error(torrent_id, 'Unable to find retracker handler for %s' % torrent_data['comment'])
+                self.dump_error(torrent_id, 'Unable to find tracker handler for %s' % torrent_data['comment'])
                 continue
             tracker_handler.set_settings(self.trackers_settings.get(tracker_handler.tracker_host))
             new_torrent_filepath = tracker_handler.get_torrent_file()
