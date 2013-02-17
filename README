@@ -90,7 +90,7 @@ Tracker handler sample `updatorr/tracker_handlers/handler_mytrack.py`::
     class MyTrackHandler(BaseTrackerHandler):
 
         # Let's suppose that tracker site doesn't require authorization.
-        login_required = True
+        login_required = False
 
         def get_torrent_file(self):
             # Here one should implement .torrent file download and
@@ -100,6 +100,10 @@ Tracker handler sample `updatorr/tracker_handlers/handler_mytrack.py`::
 
     register_tracker_handler('mytrackaurl.com', MyTrackHandler)
     register_tracker_handler('yotr.su', MyTrackHandler)
+
+It is not that as if only the `BaseTrackerHandler` class is at your service.
+You can speed up your development using `GenericTrackerHandler`, `GenericPublicTrackerHandler`
+and `GenericPrivateTrackerHandler` classes, each on which introduces different levels of abstraction.
 
 See `updatorr/tracker_handlers/handler_rutracker.py` and `updatorr/handler_base.py` for reference.
 Read docstrings of Updatorr.
