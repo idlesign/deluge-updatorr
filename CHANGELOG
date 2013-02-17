@@ -1,3 +1,11 @@
+v0.1.6
+------
++ Added rutor.org tracker support.
++ Added tr.anidub.com tracker support.
++ Added automatic top directory renaming (closes #4).
++ API now exposes `GenericPrivateTrackerHandler` and `GenericPublicTrackerHandler` helper classes.
+
+
 v0.1.5
 ------
 + Added status bar text when no updates checks are made yet.
