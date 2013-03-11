@@ -99,7 +99,7 @@ Deluge.plugins.UpdatorrPlugin = Ext.extend(Deluge.Plugin, {
 				deluge.client.updatorr.set_items_to_update(id, enable);
 			}
 		});
-	},
+	}
 
 });
 
