@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 from updatorr import VERSION
 
 
@@ -35,8 +35,8 @@ setup(
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        ],
+        'Programming Language :: Python'
+    ],
 
     packages=[__plugin_name__.lower()],
     package_data=__pkg_data__,
@@ -48,5 +48,5 @@ setup(
     %s = %s:GtkUIPlugin
     [deluge.plugin.web]
     %s = %s:WebUIPlugin
-    ''' % ((__plugin_name__, __plugin_name__.lower())*3)
+    ''' % ((__plugin_name__, __plugin_name__.lower()) * 3)
 )
