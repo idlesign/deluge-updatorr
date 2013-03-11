@@ -46,9 +46,9 @@ Troubleshooting
 Q: I installed Updatorr and checked it on plugins page, but Updatorr
 page is not shown in preferences dialog.
 
-A: 1. Verify that you downloaded and installed Updator for the same Python
-      version your deluge is working on. Updator is available in distributions
-      for Python 2.6 and 2.7.
+A: 1. Verify that you downloaded and installed Updatorr for the same Python
+      version your Deluge is working on. Updatorr is available from PyPI
+      in distribution for Python 2.7.
 
    2. Verify that `python-setuptools` package is installed.
 
