@@ -17,6 +17,8 @@ from twisted.internet.task import LoopingCall
 # Line below is required to import tracker handler on fly.
 import updatorr.tracker_handlers
 from updatorr.utils import *
+import sys
+import traceback
 
 
 log = logging.getLogger(__name__)
@@ -181,78 +183,81 @@ class Core(CorePluginBase):
 
         # To prevent possible concurent runs.
         self.walking = True
-
-        log.info('Updatorr walking...')
-        component.get('EventManager').emit(UpdatorrUpdatesCheckStartedEvent())
-
-        allow_last_walk_update = False
-
-        if isinstance(force, list):
-            torrents_list = force
-        else:
-            torrents_list = self.torrents_to_update
-
-        for torrent_id in torrents_list:
-            try:
-                torrent_data = self.core.get_torrent_status(torrent_id, [])
-            except KeyError:
-                log.debug('Updatorr \tSKIPPED No torrent with id %s listed [yet]' % torrent_id)
-                continue
-            log.info('Updatorr Processing %s ...' % torrent_data['name'])
-            # Remove not url data from comment
-            torrent_data['comment'] = RE_LINK.search(torrent_data['comment']).group('url')
-            if not is_url(torrent_data['comment']):
-                log.info('Updatorr \tSKIPPED No URL found in torrent comment')
-                continue
-            # From now on we consider that update took its place.
-            # If only this update is not forced.
-            if not force:
-                allow_last_walk_update = True
-            tracker_handler = get_tracker_handler(torrent_data, log)
-            if tracker_handler is None:
-                self.dump_error(torrent_id, 'Unable to find tracker handler for %s' % torrent_data['comment'])
-                continue
-            tracker_handler.set_settings(self.trackers_settings.get(tracker_handler.tracker_host))
-            new_torrent_filepath = tracker_handler.get_torrent_file()
-            if new_torrent_filepath is None:
-                self.dump_error(torrent_id, 'Error in tracker handling: %s' % tracker_handler.get_error_text())
-                continue
-
-            # Let's store cookies form that tracker to enter without logins in future sessions.
-            self.trackers_settings[tracker_handler.tracker_host]['cookies'] = tracker_handler.get_cookies(as_dict=True)
-
-            new_torrent_contents = read_torrent_file(new_torrent_filepath)
-            new_torrent_info = read_torrent_info(new_torrent_contents)
-            if torrent_data['hash'] == new_torrent_info['hash']:
-                log.info('Updatorr \tSKIPPED Torrent is up-to-date')
-                continue
-            log.info('Updatorr \tTorrent update is available')
-
-            new_torrent_prefs = get_new_prefs(torrent_data, new_torrent_info)
-            added_torrent_id = self.core.add_torrent_file(None, base64.encodestring(new_torrent_contents), new_torrent_prefs)
-
-            if added_torrent_id is not None:
-                self.core.remove_torrent(torrent_id, False)
-                log.info('Updatorr \tTorrent is updated')
-                # Fire up update finished event.
-                component.get('EventManager').emit(UpdatorrUpdateDoneEvent(new_torrent_info['hash']))
-                # Add new torrent hash to continue autoupdates.
-                self.set_items_to_update(new_torrent_info['hash'], True)
-                # Remove old torrent from autoupdates list.
-                self.set_items_to_update(torrent_id, False)
+        try:
+            log.info('Updatorr walking...')
+            component.get('EventManager').emit(UpdatorrUpdatesCheckStartedEvent())
+    
+            allow_last_walk_update = False
+    
+            if isinstance(force, list):
+                torrents_list = force
             else:
-                self.dump_error(torrent_id, 'Unable to replace current torrent with a new one')
-
-            # No littering, remove temporary .torrent file.
-            os.remove(new_torrent_filepath)
-
-        if allow_last_walk_update:
-            # Remember lastrun time.
-            self.last_walk = time.time()
-
-        log.info('Updatorr walk is finished')
-        component.get('EventManager').emit(UpdatorrUpdatesCheckFinishedEvent())
-        self.walking = False
+                torrents_list = self.torrents_to_update
+    
+            for torrent_id in torrents_list:
+                try:
+                    torrent_data = self.core.get_torrent_status(torrent_id, [])
+                    log.info('Updatorr Processing %s ...' % torrent_data['name'])
+                except KeyError:
+                    log.debug('Updatorr \tSKIPPED No torrent with id %s listed [yet]' % torrent_id)
+                    continue
+                # Remove not url data from comment
+                torrent_data['comment'] = RE_LINK.search(torrent_data['comment']).group('url')
+                if not is_url(torrent_data['comment']):
+                    log.info('Updatorr \tSKIPPED No URL found in torrent comment')
+                    continue
+                # From now on we consider that update took its place.
+                # If only this update is not forced.
+                if not force:
+                    allow_last_walk_update = True
+                tracker_handler = get_tracker_handler(torrent_data, log)
+                if tracker_handler is None:
+                    self.dump_error(torrent_id, 'Unable to find tracker handler for %s' % torrent_data['comment'])
+                    continue
+                tracker_handler.set_settings(self.trackers_settings.get(tracker_handler.tracker_host))
+                new_torrent_filepath = tracker_handler.get_torrent_file()
+                if new_torrent_filepath is None:
+                    self.dump_error(torrent_id, 'Error in tracker handling: %s' % tracker_handler.get_error_text())
+                    continue
+    
+                # Let's store cookies form that tracker to enter without logins in future sessions.
+                self.trackers_settings[tracker_handler.tracker_host]['cookies'] = tracker_handler.get_cookies(as_dict=True)
+    
+                new_torrent_contents = read_torrent_file(new_torrent_filepath)
+                new_torrent_info = read_torrent_info(new_torrent_contents)
+                if torrent_data['hash'] == new_torrent_info['hash']:
+                    log.info('Updatorr \tSKIPPED Torrent is up-to-date')
+                    continue
+                log.info('Updatorr \tTorrent update is available')
+    
+                new_torrent_prefs = get_new_prefs(torrent_data, new_torrent_info)
+                added_torrent_id = self.core.add_torrent_file(None, base64.encodestring(new_torrent_contents), new_torrent_prefs)
+    
+                if added_torrent_id is not None:
+                    self.core.remove_torrent(torrent_id, False)
+                    log.info('Updatorr \tTorrent is updated')
+                    # Fire up update finished event.
+                    component.get('EventManager').emit(UpdatorrUpdateDoneEvent(new_torrent_info['hash']))
+                    # Add new torrent hash to continue autoupdates.
+                    self.set_items_to_update(new_torrent_info['hash'], True)
+                    # Remove old torrent from autoupdates list.
+                    self.set_items_to_update(torrent_id, False)
+                else:
+                    self.dump_error(torrent_id, 'Unable to replace current torrent with a new one')
+    
+                # No littering, remove temporary .torrent file.
+                os.remove(new_torrent_filepath)
+    
+            if allow_last_walk_update:
+                # Remember lastrun time.
+                self.last_walk = time.time()
+    
+            log.info('Updatorr walk is finished')
+            component.get('EventManager').emit(UpdatorrUpdatesCheckFinishedEvent())
+        except:
+            log.error(traceback.format_exc())    
+        finally:    
+            self.walking = False
 
     def dump_error(self, torrent_id, text):
         """Logs error and fires error event."""
