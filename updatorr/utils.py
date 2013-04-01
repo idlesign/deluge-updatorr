@@ -7,6 +7,9 @@ from copy import deepcopy
 
 from deluge._libtorrent import lt
 
+import logging
+log = logging.getLogger(__name__)
+
 # Torrent tracker handler classes registry.
 TRACKER_HANDLERS = {}
 
@@ -51,7 +54,7 @@ def read_torrent_info(file_contents):
 
     """
     info_contents = lt.torrent_info(lt.bdecode(file_contents))
-    files_from_torrent = [a_file.path for a_file in info_contents.files()]
+    files_from_torrent = [a_file.path.decode('utf-8') for a_file in info_contents.files()]
     info = {'hash': str(info_contents.info_hash()), 'files': files_from_torrent}
     return info
 
@@ -66,6 +69,7 @@ def get_new_prefs(full_prefs, new_torrent_info):
     are copied from the previous session.
 
     """
+    
     new_prefs = deepcopy(full_prefs)
 
     # These are some items we definitely do not want in a new session.
@@ -88,28 +92,43 @@ def get_new_prefs(full_prefs, new_torrent_info):
     new_prefs['mapped_files'] = {}
     new_prefs['file_priorities'] = []
 
+    # Check for root folder rename
+    new_files = new_torrent_info['files']
+    old_root = _find_root([a_file['path'] for a_file in full_prefs['files']])
+    if old_root is not None:
+        new_root = _find_root([os.path.dirname(a_file) for a_file in new_torrent_info['files']])
+        if new_root is not None and new_root != old_root:
+            new_files = new_prefs['mapped_files']
+            i = 0
+            for a_file in new_torrent_info['files']:
+                if len(new_root) == 0:
+                    new_prefs['mapped_files'][i] = os.path.join(old_root, a_file)
+                elif len(old_root) == 0:
+                    new_prefs['mapped_files'][i] = a_file.replace(new_root, '', 1)[1:] # remove path separator as well
+                else:     
+                    new_prefs['mapped_files'][i] = a_file.replace(new_root, old_root, 1)
+                i += 1
+                
     # Copying files priorities.
     old_priorities = get_files_priorities(full_prefs)
-    for a_file in new_torrent_info['files']:
+    for a_file in new_files:
         priority = 1
         if a_file in old_priorities:
             priority = old_priorities[a_file]
         new_prefs['file_priorities'].append(priority)
 
-    # Check for root folder rename
-    old_splited = os.path.split(full_prefs['files'][0]['path'])
-    if len (old_splited) > 1:
-        old_folder = old_splited[0]
-        new_folder = os.path.split(new_torrent_info['files'][0])[0]
-        if new_folder != old_folder:
-            i = 0
-            for a_file in new_torrent_info['files']:
-                new_prefs['mapped_files'][i] = a_file.replace(new_folder, old_folder)
-                i += 1
-
-
     return new_prefs
 
+def _find_root(folders):
+    """Returns common root folder (which can be empty string) or None if given folders don't have a common root folder"""
+    root = None
+    for folder in folders:
+        while not os.path.basename(folder) == folder:
+            folder = os.path.dirname(folder)
+        if root is not None:
+            if folder != root: return None
+        else: root = folder
+    return root              
 
 def get_files_priorities(torrent_data):
     """Returns a dictionary with files priorities, where
