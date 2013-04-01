@@ -81,8 +81,7 @@ def get_new_prefs(full_prefs, new_torrent_info):
         'is_seed', 'seed_rank', 'seeding_time', 'download_payload_rate', 'message',
         'num_peers', 'compact', 'total_uploaded', 'total_done', 'num_pieces',
         'total_payload_download', 'total_seeds', 'piece_length', 'all_time_download',
-        'name', 'seeds_peers_ratio', 'eta', 'is_finished', 'total_size', 'state', 'upload_payload_rate',
-        )
+        'name', 'seeds_peers_ratio', 'eta', 'is_finished', 'total_size', 'state', 'upload_payload_rate',)
 
     for pref_name in info_to_drop:
         if pref_name in new_prefs:
@@ -93,25 +92,24 @@ def get_new_prefs(full_prefs, new_torrent_info):
     new_prefs['file_priorities'] = []
 
     # Check for root folder rename
-    new_files = new_torrent_info['files']
-    old_root = _find_root([a_file['path'] for a_file in full_prefs['files']])
-    if old_root is not None:
-        new_root = _find_root([os.path.dirname(a_file) for a_file in new_torrent_info['files']])
-        if new_root is not None and new_root != old_root:
-            new_files = new_prefs['mapped_files']
-            i = 0
-            for a_file in new_torrent_info['files']:
+    new_torrent_files = new_torrent_info['files']
+    old_root = os.path.commonprefix([a_file['path'] for a_file in full_prefs['files']])
+    if old_root:
+        new_root = os.path.commonprefix([os.path.dirname(a_file) for a_file in new_torrent_info['files']])
+        if new_root != old_root:
+            new_torrent_files = new_prefs['mapped_files']
+            for idx, a_file in enumerate(new_torrent_info['files']):
                 if len(new_root) == 0:
-                    new_prefs['mapped_files'][i] = os.path.join(old_root, a_file)
+                    new_path = os.path.join(old_root, a_file)
                 elif len(old_root) == 0:
-                    new_prefs['mapped_files'][i] = a_file.replace(new_root, '', 1)[1:] # remove path separator as well
-                else:     
-                    new_prefs['mapped_files'][i] = a_file.replace(new_root, old_root, 1)
-                i += 1
-                
-    # Copying files priorities.
+                    new_path = a_file.replace(new_root, '', 1)
+                else:
+                    new_path = a_file.replace(new_root, old_root, 1)
+                new_prefs['mapped_files'][idx] = new_path
+
+    # Copy files priorities.
     old_priorities = get_files_priorities(full_prefs)
-    for a_file in new_files:
+    for a_file in new_torrent_files:
         priority = 1
         if a_file in old_priorities:
             priority = old_priorities[a_file]
@@ -119,26 +117,16 @@ def get_new_prefs(full_prefs, new_torrent_info):
 
     return new_prefs
 
-def _find_root(folders):
-    """Returns common root folder (which can be empty string) or None if given folders don't have a common root folder"""
-    root = None
-    for folder in folders:
-        while not os.path.basename(folder) == folder:
-            folder = os.path.dirname(folder)
-        if root is not None:
-            if folder != root: return None
-        else: root = folder
-    return root              
 
 def get_files_priorities(torrent_data):
     """Returns a dictionary with files priorities, where
     filepaths are keys, and priority identifiers are values."""
     files = {}
     walk_counter = 0
-    for file in torrent_data['files']:
-        files[file['path']] = torrent_data['file_priorities'][walk_counter]
+    for a_file in torrent_data['files']:
+        files[a_file['path']] = torrent_data['file_priorities'][walk_counter]
         walk_counter += 1
-    return  files
+    return files
 
 
 class DummyRequest(object):
