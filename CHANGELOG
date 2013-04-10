@@ -1,12 +1,12 @@
 v0.1.8
 ------
-+ Fixed "updates in progress".
-+ Improved automatic top directory renaming.
+* Fixed "updates in progress".
+* Improved automatic top directory renaming.
 
 
 v0.1.7
 ------
-* Added essential WebUI support.
++ Added essential WebUI support.
 
 
 v0.1.6
