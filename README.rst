@@ -55,7 +55,7 @@ A: 1. Verify that you downloaded and installed Updatorr for the same Python
 
 Q: It seems that Updatorr doesn't work with my OS/Python/Deluge/GTK+ versions.
 
-A: Updatorr is developed and used with Ubuntu 11.10, Python 2.7, Deluge 1.3.3, GTK+ 2.24.
+A: Updatorr is developed and used with Ubuntu, Python 2.7, Deluge 1.3.3, GTK+ 2.24.
 It may or may not work with other software. Anyway you're always welcome to improve Updatorr
 to support those (see `Get involved` section down below).
 
