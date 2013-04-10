@@ -1,3 +1,14 @@
+v0.1.8
+------
++ Fixed "updates in progress".
++ Improved automatic top directory renaming.
+
+
+v0.1.7
+------
+* Added essential WebUI support.
+
+
 v0.1.6
 ------
 + Added rutor.org tracker support.
