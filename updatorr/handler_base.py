@@ -21,28 +21,21 @@ class BaseTrackerHandler(object):
     # This tells Updatorr that login procedure is required.
     login_required = True
 
-    # Torrent tracker host this handler is associated with.
-    tracker_host = None
-    # Torrent data from Deluge session.
-    torrent_data = {}
-    # Torrent hash from Deluge session data.
-    torrent_hash = None
-    # Resource URL from torrent comment.
-    resource_url = None
-
-    # Updatorr plugin logger instance.
-    _log = None
-    # Tracker specific settings (e.g. credentials).
-    _tracker_settings = {}
-    # Occured error description.
-    _error_text = ''
-
     def __init__(self, tracker_host, torrent_data, logger):
+        # Torrent tracker host this handler is associated with.
         self.tracker_host = tracker_host
+        # Torrent data from Deluge session.
         self.torrent_data = torrent_data
-        self._log = logger
+        # Torrent hash from Deluge session data.
         self.torrent_hash = torrent_data.get('hash')
+        # Resource URL from torrent comment.
         self.resource_url = torrent_data.get('comment')
+        # Tracker specific settings (e.g. credentials).
+        self._tracker_settings = {}
+        # Occured error description.
+        self._error_text = ''
+        # Updatorr plugin logger instance.
+        self._log = logger
 
     def set_settings(self, setting):
         """Stores tracker specific settings (e.g. credentials)
