@@ -93,7 +93,7 @@ def get_new_prefs(full_prefs, new_torrent_info):
 
     # Check for root folder rename
     new_torrent_files = new_torrent_info['files']
-    old_root = os.path.commonprefix([a_file['path'] for a_file in full_prefs['files']])
+    old_root = os.path.commonprefix([os.path.dirname(a_file['path']) for a_file in full_prefs['files']])
     if old_root:
         new_root = os.path.commonprefix([os.path.dirname(a_file) for a_file in new_torrent_info['files']])
         if new_root != old_root:
