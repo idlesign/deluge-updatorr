@@ -2,6 +2,8 @@ deluge-updatorr
 ===============
 http://github.com/idlesign/deluge-updatorr
 
+.. image:: https://pypip.in/d/Updatorr/badge.png
+        :target: https://crate.io/packages/Updatorr
 
 What's that
 -----------
