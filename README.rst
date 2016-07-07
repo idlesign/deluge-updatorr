@@ -11,8 +11,8 @@ Thanks for watching us!
 Please consider moving to **torrt** - https://github.com/idlesign/torrt
 
 
-What's was it
--------------
+What was it
+-----------
 
 *deluge-updatorr is a Deluge plugin for automatic torrents updates.*
 
@@ -36,7 +36,3 @@ Automatic updates are available for:
 
 *Deluge is a lightweight, Free Software, cross-platform BitTorrent client.*
 Download it at http://deluge-torrent.org/
-
-
-.. image:: https://pypip.in/d/Updatorr/badge.png
-        :target: https://crate.io/packages/Updatorr
